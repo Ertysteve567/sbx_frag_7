@@ -14,11 +14,24 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: List directory structure (调试查看结构)
+        run: ls -R
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        run: gradle build
+        run: |
+          if [ -f "build.gradle" ]; then
+            echo "在根目录找到 build.gradle"
+            gradle build
+          elif [ -f "sbx_frag_7/build.gradle" ]; then
+            echo "在 sbx_frag_7 子文件夹找到 build.gradle，进入该目录..."
+            cd sbx_frag_7 && gradle build
+          else
+            echo "找不到 build.gradle，请检查目录"
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
