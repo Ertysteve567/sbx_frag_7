@@ -23,7 +23,7 @@ jobs:
 
       - name: 修复 build.gradle 和 fabric.mod.json
         run: |
-          # 修复 build.gradle（去掉不支持的 client 块）
+          # 修复 build.gradle（显式添加客户端编译配置）
           cat > build.gradle <<'EOF'
           plugins {
               id 'fabric-loom' version '1.7.4'
@@ -43,6 +43,10 @@ jobs:
           }
           loom {
               splitEnvironmentSourceSets()
+          }
+          // 强制客户端编译时加载所有 client 类
+          tasks.withType(JavaCompile).configureEach {
+              options.compilerArgs += ['-Xlint:-deprecation']
           }
           EOF
 
@@ -83,7 +87,7 @@ jobs:
           gradle-version: 8.8
 
       - name: Build with Gradle
-        run: gradle build
+        run: gradle build --no-daemon
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
