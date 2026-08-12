@@ -23,7 +23,7 @@ jobs:
 
       - name: 修复 build.gradle 和 fabric.mod.json
         run: |
-          # 修复 build.gradle（添加 client 环境支持）
+          # 修复 build.gradle（去掉不支持的 client 块）
           cat > build.gradle <<'EOF'
           plugins {
               id 'fabric-loom' version '1.7.4'
@@ -43,9 +43,6 @@ jobs:
           }
           loom {
               splitEnvironmentSourceSets()
-              client {
-                  sourceSet client
-              }
           }
           EOF
 
