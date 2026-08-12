@@ -21,8 +21,9 @@ jobs:
             echo "没有找到 .zip 文件，跳过解压步骤。"
           fi
 
-      - name: 修复 build.gradle（移除 Fabric API 依赖）
+      - name: 修复 build.gradle 和 fabric.mod.json
         run: |
+          # 修复 build.gradle（添加 client 环境支持）
           cat > build.gradle <<'EOF'
           plugins {
               id 'fabric-loom' version '1.7.4'
@@ -40,9 +41,38 @@ jobs:
               mappings loom.officialMojangMappings()
               modImplementation "net.fabricmc:fabric-loader:0.15.11"
           }
-          loom { splitEnvironmentSourceSets() }
+          loom {
+              splitEnvironmentSourceSets()
+              client {
+                  sourceSet client
+              }
+          }
           EOF
-          echo "✅ build.gradle 已修复（已移除 Fabric API 依赖）"
+
+          # 修复 fabric.mod.json（强制指定 client 环境）
+          cat > src/main/resources/fabric.mod.json <<'EOF'
+          {
+            "schemaVersion": 1,
+            "id": "sbx_frag_7",
+            "version": "1.0.0",
+            "name": "<SBX://PROJ.FRAG-7/ACCESS:Ω>",
+            "description": "铁砧命名改变纹理",
+            "authors": ["You"],
+            "license": "MIT",
+            "environment": "client",
+            "entrypoints": {
+              "main": ["com.example.namedobsidian.NamedObsidianMod"],
+              "client": ["com.example.namedobsidian.NamedObsidianClient"]
+            },
+            "mixins": ["namedobsidian.mixins.json"],
+            "depends": {
+              "fabricloader": ">=0.15.0",
+              "minecraft": "~1.21.1"
+            }
+          }
+          EOF
+
+          echo "✅ 所有配置文件已修复"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
